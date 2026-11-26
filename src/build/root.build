@@ -1,4 +1,0 @@
-using cxx
-
-hxx{*}: extension = hxx
-cxx{*}: extension = cxx
