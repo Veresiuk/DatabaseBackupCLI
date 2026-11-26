@@ -1,0 +1,69 @@
+services:
+  db:
+    image: postgres:17
+    command:
+    - postgres
+    - -c 
+    - summarize_wal=on
+    - -c 
+    - wal_summary_keep_time=30d
+    container_name: database-backup-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: backup_demo
+      POSTGRES_USER: backup_user
+      POSTGRES_PASSWORD: local_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - type: bind
+        source: D:/DatabaseBackups
+        target: /backups
+      - ./scripts/postgres_cluster_backup.sh:/scripts/postgres_cluster_backup.sh:ro
+      - ./scripts/postgres_cluster_combine.sh:/scripts/postgres_cluster_combine.sh:ro
+      - ./scripts/postgres_cluster_retention.sh:/scripts/postgres_cluster_retention.sh:ro
+      - ./scripts/postgres_cluster_restore_test.sh:/scripts/postgres_cluster_restore_test.sh:ro
+
+  mysql:
+    image: mysql:8.4
+    container_name: database-backup-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: local_mysql_root_password
+      MYSQL_DATABASE: backup_demo
+      MYSQL_USER: backup_user
+      MYSQL_PASSWORD: local_mysql_password
+      MYSQL_BACKUP_DATABASE: backup_demo
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - type: bind
+        source: D:/DatabaseBackups
+        target: /backups
+      - ./scripts/mysql_backup.sh:/scripts/mysql_backup.sh:ro
+      - ./scripts/mysql_restore.sh:/scripts/mysql_restore.sh:ro
+
+  mongo:
+    image: mongo:8.0
+    container_name: database-backup-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: backup_user
+      MONGO_INITDB_ROOT_PASSWORD: local_mongo_password
+      MONGO_URI: mongodb://backup_user:local_mongo_password@mongo:27017/?authSource=admin
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - type: bind
+        source: D:/DatabaseBackups
+        target: /backups
+      - ./scripts/mongo_backup.sh:/scripts/mongo_backup.sh:ro
+      - ./scripts/mongo_restore.sh:/scripts/mongo_restore.sh:ro
+
+volumes:
+  postgres_data:
+  mysql_data:
+  mongo_data:

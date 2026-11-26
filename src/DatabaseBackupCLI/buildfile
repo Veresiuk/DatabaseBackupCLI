@@ -1,0 +1,12 @@
+cxx.poptions += "-ID:/odb-install/include"
+cxx.poptions += "-ID:/odb-build/odb-mingw/libodb-pgsql-2.6.0"
+cxx.poptions += "-ID:/odb-build/odb-mingw/libpq-14.1.0+7/libpq/pq"
+cxx.poptions += "-I$src_root/../include/DatabaseBackupCLI"
+
+cxx.loptions += "-LD:/odb-install/lib"
+cxx.loptions += "-LD:/odb-build/odb-mingw/libodb-pgsql-2.6.0/odb/pgsql"
+cxx.loptions += "-LD:/odb-build/odb-mingw/libpq-14.1.0+7/libpq"
+
+cxx.libs += -lodb-pgsql -lpq -lodb
+
+exe{DatabaseBackupCLI}: cxx{DatabaseBackupCLI DatabaseConnection BackupJobRepository BackupService BackupJob-odb} hxx{../../include/DatabaseBackupCLI/DatabaseConnection ../../include/DatabaseBackupCLI/BackupJobRepository ../../include/DatabaseBackupCLI/BackupService ../../include/DatabaseBackupCLI/BackupJob ../../include/DatabaseBackupCLI/BackupJob-odb} ixx{../../include/DatabaseBackupCLI/BackupJob-odb}
